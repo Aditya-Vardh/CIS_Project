@@ -2,9 +2,15 @@ import { memo, useMemo, useState } from "react";
 
 const ThreatFeedRow = memo(function ThreatFeedRow({ log }) {
   const rowClass = log.verdict === "BLOCK" ? "feed-row row-block slide-in" : "feed-row row-allow slide-in";
+  const severity = log.verdict === "ALLOW" ? "clean" : (log.severity || "low");
   return (
     <div className={rowClass}>
-      [{new Date(log.timestamp).toLocaleTimeString()}] {log.method} {log.path} - {log.verdict} - {log.rule_name} - {log.verdict === "ALLOW" ? "-" : log.severity}
+      <span className="feed-time">{new Date(log.timestamp).toLocaleTimeString()}</span>
+      <span className="feed-method">{log.method}</span>
+      <span className="feed-path">{log.path}</span>
+      <span className={`feed-verdict ${log.verdict === "BLOCK" ? "danger" : "safe"}`}>{log.verdict}</span>
+      <span className="feed-rule">{log.rule_name}</span>
+      <span className={`feed-sev sev-${severity}`}>{severity.toUpperCase()}</span>
     </div>
   );
 });
@@ -38,6 +44,7 @@ export default function ThreatFeed({ logs, clearLogs }) {
         {filtered.map((l) => (
           <ThreatFeedRow key={l.id} log={l} />
         ))}
+        {filtered.length === 0 && <div className="feed-empty">No matching events in current filter.</div>}
       </div>
     </section>
   );

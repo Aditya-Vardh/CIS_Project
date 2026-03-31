@@ -12,6 +12,7 @@ const StatCard = memo(function StatCard({ label, value, cls }) {
     <article className={`stat-card ${cls}`}>
       <div className="stat-label">{label}</div>
       <div className="stat-value">{value}</div>
+      <div className="stat-glow" />
     </article>
   );
 });

@@ -1,33 +1,40 @@
-import { useMemo, useState } from "react";
+import { Suspense, lazy, useMemo, useState } from "react";
+import { AnimatePresence, motion as Motion } from "framer-motion";
 import Navbar from "./components/Navbar";
 import StatsBanner from "./components/StatsBanner";
 import AttackSimulator from "./components/AttackSimulator";
 import ThreatFeed from "./components/ThreatFeed";
-import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import RulesManager from "./components/RulesManager";
 import ThreatMap from "./components/ThreatMap";
 import Terminal from "./components/Terminal";
 import { WaveBackground } from "./components/WaveBackground";
+import LandingPage from "./components/LandingPage";
 import { useWafStats } from "./hooks/useWafStats";
 import { useThreatFeed } from "./hooks/useThreatFeed";
 
 const tabs = ["Dashboard", "Simulator", "Rules", "Analytics", "Logs"];
+const AnalyticsDashboard = lazy(() => import("./components/AnalyticsDashboard"));
 
-export default function App() {
+function ConsoleView() {
   const [activeTab, setActiveTab] = useState("Dashboard");
+  const [terminalOpen, setTerminalOpen] = useState(true);
   const { stats, refreshStats } = useWafStats();
   const { logs, refreshLogs, clearLogs } = useThreatFeed();
-  const [terminalOpen, setTerminalOpen] = useState(true);
-
   const dashboardLogs = useMemo(() => logs.slice(0, 20), [logs]);
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", background: "#04050a" }}>
-      <WaveBackground />
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <div className="app-shell">
-          <Navbar tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} rpm={stats.requestsPerMinute || 0} />
-          <main className="main-content">
+    <>
+      <Navbar tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} rpm={stats.requestsPerMinute || 0} />
+      <main className="main-content">
+        <AnimatePresence mode="wait">
+          <Motion.section
+            key={activeTab}
+            className="tab-panel"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.24, ease: "easeOut" }}
+          >
             {activeTab === "Dashboard" && (
               <>
                 <StatsBanner stats={stats} />
@@ -39,10 +46,43 @@ export default function App() {
             )}
             {activeTab === "Simulator" && <AttackSimulator onFired={() => { refreshLogs(); refreshStats(); }} fullWidth />}
             {activeTab === "Rules" && <RulesManager onChanged={refreshStats} />}
-            {activeTab === "Analytics" && <AnalyticsDashboard />}
+            {activeTab === "Analytics" && (
+              <Suspense fallback={<section className="panel"><h3>Loading analytics...</h3></section>}>
+                <AnalyticsDashboard />
+              </Suspense>
+            )}
             {activeTab === "Logs" && <ThreatMap logs={logs} refreshLogs={refreshLogs} />}
-          </main>
-          <Terminal logs={logs} open={terminalOpen} setOpen={setTerminalOpen} />
+          </Motion.section>
+        </AnimatePresence>
+      </main>
+      <Terminal logs={logs} open={terminalOpen} setOpen={setTerminalOpen} />
+    </>
+  );
+}
+
+export default function App() {
+  const [view, setView] = useState("landing");
+
+  return (
+    <div style={{ position: "relative", minHeight: "100vh", background: "#04050a" }}>
+      <WaveBackground />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div className="app-shell">
+          <AnimatePresence mode="wait">
+            <Motion.div
+              key={view}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+            >
+              {view === "landing" ? (
+                <LandingPage onEnter={() => setView("dashboard")} />
+              ) : (
+                <ConsoleView />
+              )}
+            </Motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

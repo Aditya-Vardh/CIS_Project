@@ -1,20 +1,32 @@
 import { useCallback, useEffect, useState } from "react";
-
-const API = "http://192.168.1.17:4000";
+import { API_BASE_URL } from "../config/api";
 
 export function useWafStats() {
   const [stats, setStats] = useState({});
 
   const refreshStats = useCallback(async () => {
-    const res = await fetch(`${API}/waf/stats`);
-    const data = await res.json();
-    setStats(data);
+    try {
+      const res = await fetch(`${API_BASE_URL}/waf/stats`);
+      const data = await res.json();
+      setStats(data);
+    } catch {
+      setStats({});
+    }
   }, []);
 
   useEffect(() => {
-    refreshStats();
-    const timer = setInterval(refreshStats, 1000);
-    return () => clearInterval(timer);
+    const initTimer = setTimeout(() => {
+      refreshStats();
+    }, 0);
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        refreshStats();
+      }
+    }, 3000);
+    return () => {
+      clearTimeout(initTimer);
+      clearInterval(timer);
+    };
   }, [refreshStats]);
 
   return { stats, refreshStats };

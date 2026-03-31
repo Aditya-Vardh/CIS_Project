@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList } from "recharts";
-
-const API = "http://192.168.1.17:4000";
+import { API_BASE_URL } from "../config/api";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const CATEGORY_COLORS = {
@@ -30,10 +29,10 @@ export default function AnalyticsDashboard() {
   useEffect(() => {
     async function load() {
       const [t, ip, h, s] = await Promise.all([
-        fetch(`${API}/waf/analytics/timeline`).then((r) => r.json()),
-        fetch(`${API}/waf/analytics/topips`).then((r) => r.json()),
-        fetch(`${API}/waf/analytics/heatmap`).then((r) => r.json()),
-        fetch(`${API}/waf/stats`).then((r) => r.json()),
+        fetch(`${API_BASE_URL}/waf/analytics/timeline`).then((r) => r.json()),
+        fetch(`${API_BASE_URL}/waf/analytics/topips`).then((r) => r.json()),
+        fetch(`${API_BASE_URL}/waf/analytics/heatmap`).then((r) => r.json()),
+        fetch(`${API_BASE_URL}/waf/stats`).then((r) => r.json()),
       ]);
       setTimeline(t);
       setTopIps(ip);

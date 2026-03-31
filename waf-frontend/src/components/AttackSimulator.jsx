@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-
-const API = "http://192.168.1.17:4000";
+import { API_BASE_URL } from "../config/api";
 
 const PAYLOADS = {
   "SQL Injection": { method: "GET", endpoint: "/search", body: null, query: "?q=SELECT * FROM users WHERE '1'='1" },
@@ -49,12 +48,6 @@ export default function AttackSimulator({ onFired, fullWidth }) {
     setHeaders(JSON.stringify(PAYLOADS[next].headers || {}, null, 2));
   }
 
-  useEffect(() => {
-    const cfg = PAYLOADS[type];
-    setPayload(cfg.body || cfg.query || "");
-    setHeaders(JSON.stringify(cfg.headers || {}, null, 2));
-  }, []);
-
   useEffect(() => () => { autoRunningRef.current = false; }, []);
 
   async function executeAttack(target, nameLabel, bodyOverride, headersOverride) {
@@ -63,8 +56,10 @@ export default function AttackSimulator({ onFired, fullWidth }) {
     let parsedHeaders = {};
     try {
       parsedHeaders = JSON.parse(headersOverride || headers || "{}");
-    } catch (_e) {}
-    const res = await fetch(`${API}${target.endpoint}${target.query || ""}`, {
+    } catch {
+      parsedHeaders = {};
+    }
+    const res = await fetch(`${API_BASE_URL}${target.endpoint}${target.query || ""}`, {
       method: target.method,
       headers: { "Content-Type": "application/json", ...parsedHeaders, ...(target.headers || {}) },
       body: target.method === "GET" ? undefined : (bodyOverride ?? payload),
@@ -91,10 +86,8 @@ export default function AttackSimulator({ onFired, fullWidth }) {
         const attack = AUTO_ATTACKS[i];
         setAutoStep(i + 1);
         setAutoStatus((prev) => ({ ...prev, attackName: attack.name }));
-        // eslint-disable-next-line no-await-in-loop
         await executeAttack(attack, attack.name, attack.body || attack.query || "", JSON.stringify(attack.headers || {}, null, 2));
         if (!autoRunningRef.current) break;
-        // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }

@@ -1,6 +1,5 @@
-import { memo, useEffect, useState } from "react";
-
-const API = "http://192.168.1.17:4000";
+import { memo, useCallback, useEffect, useState } from "react";
+import { API_BASE_URL } from "../config/api";
 
 const RuleCard = memo(function RuleCard({ rule, onToggle }) {
   return (
@@ -30,32 +29,35 @@ export default function RulesManager({ onChanged }) {
   const [sample, setSample] = useState("");
   const [testResult, setTestResult] = useState("");
 
-  async function load() {
-    const res = await fetch(`${API}/waf/rules`);
+  const load = useCallback(async () => {
+    const res = await fetch(`${API_BASE_URL}/waf/rules`);
     setRules(await res.json());
-  }
-
-  useEffect(() => {
-    load();
   }, []);
 
+  useEffect(() => {
+    const initTimer = setTimeout(() => {
+      load();
+    }, 0);
+    return () => clearTimeout(initTimer);
+  }, [load]);
+
   async function toggle(rule) {
-    await fetch(`${API}/waf/rules/${rule.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: !rule.enabled }) });
+    await fetch(`${API_BASE_URL}/waf/rules/${rule.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: !rule.enabled }) });
     load();
     onChanged?.();
   }
 
   async function createRule() {
-    await fetch(`${API}/waf/rules`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+    await fetch(`${API_BASE_URL}/waf/rules`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
     setOpen(false);
-    load();
+    await load();
   }
 
   function testPattern() {
     try {
       const ok = new RegExp(form.pattern, "i").test(sample);
       setTestResult(ok ? "MATCH" : "NO MATCH");
-    } catch (_e) {
+    } catch {
       setTestResult("INVALID REGEX");
     }
   }

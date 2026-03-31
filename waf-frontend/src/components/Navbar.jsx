@@ -9,7 +9,10 @@ export default function Navbar({ tabs, activeTab, setActiveTab, rpm }) {
 
   return (
     <header className="navbar">
-      <div className="brand">🛡️ WAF//ENGINE</div>
+      <div className="brand-wrap">
+        <div className="brand">WAF // ENGINE</div>
+        <div className="brand-sub">Enterprise Protection Console</div>
+      </div>
       <div className="online">
         <span className="dot" /> SYSTEM ONLINE
       </div>
@@ -21,7 +24,7 @@ export default function Navbar({ tabs, activeTab, setActiveTab, rpm }) {
         ))}
       </nav>
       <div className="top-meta">
-        <span>{now.toLocaleTimeString()}</span>
+        <span className="clock">{now.toLocaleTimeString()}</span>
         <span className="rpm">{rpm} req/min</span>
       </div>
     </header>

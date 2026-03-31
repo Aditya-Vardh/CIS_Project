@@ -2,9 +2,22 @@ import { useMemo, useState } from "react";
 
 export default function ThreatMap({ logs }) {
   const [sortKey, setSortKey] = useState("timestamp");
+  const [descending, setDescending] = useState(true);
   const [selected, setSelected] = useState(null);
 
-  const sorted = useMemo(() => [...logs].sort((a, b) => String(b[sortKey]).localeCompare(String(a[sortKey]))), [logs, sortKey]);
+  const sorted = useMemo(() => {
+    const copy = [...logs].sort((a, b) => String(a[sortKey]).localeCompare(String(b[sortKey])));
+    return descending ? copy.reverse() : copy;
+  }, [logs, sortKey, descending]);
+
+  function onSort(next) {
+    if (next === sortKey) {
+      setDescending((d) => !d);
+      return;
+    }
+    setSortKey(next);
+    setDescending(true);
+  }
 
   return (
     <section className="panel logs">
@@ -22,7 +35,7 @@ export default function ThreatMap({ logs }) {
       </div>
       <table>
         <thead>
-          <tr>{["timestamp", "ip", "method", "path", "verdict", "rule_name", "severity", "payload"].map((h) => <th key={h} onClick={() => setSortKey(h)}>{h}</th>)}</tr>
+          <tr>{["timestamp", "ip", "method", "path", "verdict", "rule_name", "severity", "payload"].map((h) => <th key={h} onClick={() => onSort(h)}>{h}{sortKey === h ? (descending ? " ↓" : " ↑") : ""}</th>)}</tr>
         </thead>
         <tbody>
           {sorted.slice(0, 20).map((l) => (
