@@ -102,7 +102,8 @@ app.post("/comment", (req, res) => res.json({ verdict: "ALLOW", message: "Commen
 app.get("/api/products", (_req, res) => res.json({ verdict: "ALLOW", products: [{ id: 1, name: "Firewall Console" }, { id: 2, name: "Threat Feed Pro" }] }));
 app.post("/api/upload", (_req, res) => res.json({ verdict: "ALLOW", message: "Upload processed" }));
 
-app.listen(4000, '0.0.0.0', () => {
-  console.log("WAF running on http://192.168.1.17:4000");
-  console.log("WAF accessible on network: http://192.168.1.17:4000");
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`WAF running on port ${PORT}`);
 });
