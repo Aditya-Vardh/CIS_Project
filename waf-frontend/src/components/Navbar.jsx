@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Navbar({ tabs, activeTab, setActiveTab, rpm }) {
   const [now, setNow] = useState(new Date());
@@ -18,8 +19,19 @@ export default function Navbar({ tabs, activeTab, setActiveTab, rpm }) {
       </div>
       <nav className="tabs">
         {tabs.map((tab) => (
-          <button key={tab} className={tab === activeTab ? "tab active" : "tab"} onClick={() => setActiveTab(tab)}>
-            {tab}
+          <button 
+            key={tab} 
+            className={tab === activeTab ? "tab active" : "tab"} 
+            onClick={() => setActiveTab(tab)}
+          >
+            <span style={{ position: "relative", zIndex: 1 }}>{tab}</span>
+            {tab === activeTab && (
+              <motion.div 
+                layoutId="nav-pill" 
+                className="tab-pill" 
+                transition={{ type: "spring", stiffness: 450, damping: 35 }} 
+              />
+            )}
           </button>
         ))}
       </nav>

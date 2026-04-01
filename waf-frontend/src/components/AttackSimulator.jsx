@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { API_BASE_URL } from "../config/api";
+import { useThreat } from "../context/ThreatContext";
 
 const PAYLOADS = {
   "SQL Injection": { method: "GET", endpoint: "/search", body: null, query: "?q=SELECT * FROM users WHERE '1'='1" },
@@ -40,6 +41,7 @@ export default function AttackSimulator({ onFired, fullWidth }) {
   const [autoStatus, setAutoStatus] = useState({ attackName: "", verdict: "" });
   const [autoStep, setAutoStep] = useState(0);
   const autoRunningRef = useRef(false);
+  const { triggerThreatAlert } = useThreat();
 
   function syncType(next) {
     setType(next);
@@ -71,6 +73,11 @@ export default function AttackSimulator({ onFired, fullWidth }) {
     setCount((c) => c + 1);
     setHistory((h) => [{ type: nameLabel || type, verdict, ts: new Date().toLocaleTimeString(), payload: (bodyOverride ?? payload) || target.query }, ...h].slice(0, 10));
     setAutoStatus({ attackName: nameLabel || type, verdict });
+    
+    if (verdict === "BLOCK") {
+      triggerThreatAlert({ ...data, threatId: data.threatId || 'SIM-' + Date.now() });
+    }
+
     onFired?.();
     setTimeout(() => setAnim(false), 500);
   }

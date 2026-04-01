@@ -11,9 +11,12 @@ import { WaveBackground } from "./components/WaveBackground";
 import LandingPage from "./components/LandingPage";
 import { useWafStats } from "./hooks/useWafStats";
 import { useThreatFeed } from "./hooks/useThreatFeed";
+import { ThreatProvider } from "./context/ThreatContext";
+import ThreatHUD from "./components/ThreatHUD";
 
-const tabs = ["Dashboard", "Simulator", "Rules", "Analytics", "Logs"];
+const tabs = ["Dashboard", "Simulator", "Rules", "Analytics", "Logs", "Sandbox"];
 const AnalyticsDashboard = lazy(() => import("./components/AnalyticsDashboard"));
+const Sandbox = lazy(() => import("./components/Sandbox"));
 
 function ConsoleView() {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -52,6 +55,11 @@ function ConsoleView() {
               </Suspense>
             )}
             {activeTab === "Logs" && <ThreatMap logs={logs} refreshLogs={refreshLogs} />}
+            {activeTab === "Sandbox" && (
+              <Suspense fallback={<section className="panel"><h3>Loading sandbox...</h3></section>}>
+                <Sandbox />
+              </Suspense>
+            )}
           </Motion.section>
         </AnimatePresence>
       </main>
@@ -79,7 +87,10 @@ export default function App() {
               {view === "landing" ? (
                 <LandingPage onEnter={() => setView("dashboard")} />
               ) : (
-                <ConsoleView />
+                <ThreatProvider>
+                  <ConsoleView />
+                  <ThreatHUD />
+                </ThreatProvider>
               )}
             </Motion.div>
           </AnimatePresence>
