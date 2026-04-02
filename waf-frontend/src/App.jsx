@@ -1,5 +1,6 @@
 import { Suspense, lazy, useMemo, useState } from "react";
 import { AnimatePresence, motion as Motion } from "framer-motion";
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from "./components/Navbar";
 import StatsBanner from "./components/StatsBanner";
 import AttackSimulator from "./components/AttackSimulator";
@@ -96,6 +97,7 @@ export default function App() {
           </AnimatePresence>
         </div>
       </div>
+      <Analytics />
     </div>
   );
 }
