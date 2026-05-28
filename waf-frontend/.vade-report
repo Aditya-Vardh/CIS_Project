@@ -1,0 +1,56 @@
+# Vercel Web Analytics Installation
+
+Successfully installed and configured Vercel Web Analytics for this React + Vite project.
+
+## Changes Made
+
+### 1. Package Installation
+- **File**: `package.json`
+- **Action**: Added `@vercel/analytics` version `^2.0.1` as a dependency
+- **Reason**: Required package for Vercel Web Analytics integration
+
+### 2. Analytics Component Integration
+- **File**: `src/App.jsx`
+- **Actions**:
+  - Added import: `import { Analytics } from '@vercel/analytics/react';`
+  - Added `<Analytics />` component at the end of the root App component's JSX
+- **Reason**: Following official Vercel documentation for React/Vite applications
+
+### 3. Lock File Update
+- **File**: `package-lock.json`
+- **Action**: Updated to include @vercel/analytics and its dependencies
+- **Reason**: Ensures consistent dependency resolution across environments
+
+## Implementation Details
+
+According to the latest Vercel Web Analytics documentation (https://vercel.com/docs/analytics/quickstart), for React/Vite projects, the Analytics component should be imported from `@vercel/analytics/react` and placed in the main App component. 
+
+The component was strategically placed at the end of the root div in the App component to ensure:
+1. It doesn't interfere with the existing layout structure
+2. It can track all page views and interactions
+3. It loads after the main content
+
+## Verification
+
+✅ Build completed successfully without errors
+✅ Linter check passed for App.jsx (no new errors introduced)
+✅ Package installed correctly with npm
+
+## Next Steps
+
+To activate analytics:
+1. Deploy the application to Vercel using `vercel deploy`
+2. Enable Analytics in the Vercel project dashboard
+3. Analytics will start tracking after deployment with visitor traffic
+
+The Analytics component will automatically start collecting:
+- Page views
+- User interactions
+- Web vitals
+- Custom events (if configured later)
+
+## Notes
+
+- The existing codebase had some pre-existing linter warnings in other files (Navbar.jsx, Sandbox.jsx, Terminal.jsx, ThreatHUD.jsx, ThreatContext.jsx), but these are unrelated to this implementation
+- No changes to existing functionality were made
+- The Analytics component is lightweight and won't impact application performance
